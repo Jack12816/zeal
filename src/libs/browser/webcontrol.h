@@ -52,6 +52,7 @@ public slots:
     void zoomIn();
     void zoomOut();
     void resetZoom();
+    void copySelection();
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;

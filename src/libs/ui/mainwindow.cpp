@@ -128,6 +128,8 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
     connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->zoomOut(); });
     shortcut = new QShortcut(QStringLiteral("Ctrl+0"), this);
     connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->resetZoom(); });
+    shortcut = new QShortcut(QStringLiteral("Ctrl+C"), this);
+    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->webControl()->copySelection(); });
 
     // Tools Menu
     connect(ui->actionDocsets, &QAction::triggered, this, [this]() {
@@ -199,7 +201,7 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
 
     createTab();
 
-    ui->actionNewTab->setShortcut(QKeySequence::AddTab);
+    ui->actionNewTab->setShortcuts({QKeySequence(Qt::ControlModifier | Qt::Key_T)});
     connect(ui->actionNewTab, &QAction::triggered, this, [this]() { createTab(); });
     addAction(ui->actionNewTab);
     connect(m_tabBar, &QTabBar::tabBarDoubleClicked, this, [this](int index) {

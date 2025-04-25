@@ -92,7 +92,9 @@ bool SearchEdit::event(QEvent *event)
         // TODO: Should be obtained from the ActionManager.
         static const QStringList focusShortcuts = {
             QStringLiteral("Ctrl+K"),
-            QStringLiteral("Ctrl+L")
+            QStringLiteral("Ctrl+L"),
+            // Focus the search input on Escape
+            QStringLiteral("Esc")
         };
 
         auto keyEvent = static_cast<QKeyEvent *>(event);
