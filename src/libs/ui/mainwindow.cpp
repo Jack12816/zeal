@@ -293,7 +293,7 @@ void MainWindow::setupMainMenu()
     // Not a standard icon, but it is often provided by GTK themes.
     auto action = menu->addAction(QIcon::fromTheme(QStringLiteral("tab-new")), tr("New &Tab"));
     addAction(action);
-    action->setShortcut(QKeySequence::AddTab);
+    action->setShortcuts({QKeySequence(Qt::ControlModifier | Qt::Key_T)});
     connect(action, &QAction::triggered, this, [this]() {
         createTab();
     });
@@ -450,6 +450,14 @@ void MainWindow::setupShortcuts()
         }
     });
 
+    // Escape key should bring back the focus to the search input.
+    shortcut = new QShortcut(QStringLiteral("Esc"), this);
+    connect(shortcut, &QShortcut::activated, this, [this]() {
+        if (auto tab = currentTab()) {
+            tab->searchSidebar()->focusSearchEdit();
+        }
+    });
+
     // Duplicate current tab.
     shortcut = new QShortcut(QStringLiteral("Ctrl+Alt+T"), this);
     connect(shortcut, &QShortcut::activated, this, [this]() {
@@ -504,6 +512,12 @@ void MainWindow::setupShortcuts()
     connect(shortcut, &QShortcut::activated, this, [this]() {
         if (auto tab = currentTab()) {
             tab->webControl()->resetZoom();
+        }
+    });
+    shortcut = new QShortcut(QStringLiteral("Ctrl+C"), this);
+    connect(shortcut, &QShortcut::activated, this, [this]() {
+        if (auto tab = currentTab()) {
+            tab->webControl()->copySelection();
         }
     });
 
