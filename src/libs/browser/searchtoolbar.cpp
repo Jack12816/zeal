@@ -104,6 +104,15 @@ void SearchToolBar::activate()
 
 bool SearchToolBar::eventFilter(QObject *object, QEvent *event)
 {
+    // Escape is a window-wide shortcut that focuses the sidebar search. Claim the key here
+    // so it still reaches keyPressEvent() and closes the find bar instead.
+    if (object == m_lineEdit && event->type() == QEvent::ShortcutOverride) {
+        if (static_cast<QKeyEvent *>(event)->key() == Qt::Key_Escape) {
+            event->accept();
+            return true;
+        }
+    }
+
     if (object == m_lineEdit && event->type() == QEvent::KeyPress) {
         auto *keyEvent = static_cast<QKeyEvent *>(event);
 

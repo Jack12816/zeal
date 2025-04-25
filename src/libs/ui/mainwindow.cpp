@@ -280,7 +280,8 @@ void MainWindow::setupMainMenu()
                                                          QStringLiteral(":/icons/tabler/plus.svg")),
                                    tr("New &Tab"));
     addAction(action);
-    action->setShortcut(QKeySequence::AddTab);
+    // Bind Ctrl+T explicitly, as QKeySequence::AddTab did not fire on X11 (i3).
+    action->setShortcut(QKeySequence(Qt::ControlModifier | Qt::Key_T));
     connect(action, &QAction::triggered, this, [this]() {
         createTab();
     });
@@ -339,6 +340,22 @@ void MainWindow::setupMainMenu()
 
     // Edit Menu.
     menu = m_menuBar->addMenu(tr("&Edit"));
+
+    // -> Copy Action.
+    // Qt WebEngine only claims Ctrl+C inside editable fields, so a plain page selection is
+    // not copied on some platforms (seen on X11). Trigger the page's copy action ourselves.
+    action = menu->addAction(IconHelper::fromTheme(QStringLiteral("edit-copy"),
+                                                   QStringLiteral(":/icons/tabler/copy.svg")),
+                             tr("&Copy"));
+    addAction(action);
+    action->setShortcuts(QKeySequence::Copy);
+    connect(action, &QAction::triggered, this, [this]() {
+        if (auto *tab = currentTab()) {
+            tab->webControl()->copySelection();
+        }
+    });
+
+    menu->addSeparator();
 
     // -> Find in Page Action.
     action = menu->addAction(IconHelper::fromTheme(QStringLiteral("edit-find"),
@@ -593,6 +610,17 @@ void MainWindow::setupShortcuts()
         m_globalShortcut = new QxtGlobalShortcut(m_settings->showShortcut, this);
         connect(m_globalShortcut, &QxtGlobalShortcut::activated, this, &MainWindow::toggleWindow);
     }
+
+    // Focus the search input on Escape from anywhere in the window. The key press handler
+    // only sees Escape when the focused widget passes it on, which the web view does not do
+    // reliably (seen on X11). Widgets with their own Escape handling (search input, find bar,
+    // menu bar) claim the key via ShortcutOverride, so this shortcut stays out of their way.
+    auto *shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    connect(shortcut, &QShortcut::activated, this, [this]() {
+        if (auto *tab = currentTab()) {
+            tab->searchSidebar()->focusSearchEdit();
+        }
+    });
 }
 
 void MainWindow::setupTabBar()

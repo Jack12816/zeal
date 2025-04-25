@@ -90,10 +90,17 @@ bool SearchEdit::event(QEvent *event)
         break;
     }
     case QEvent::ShortcutOverride: {
+        auto *keyEvent = static_cast<QKeyEvent *>(event);
+
+        // Escape is a window-wide shortcut that focuses this widget. Claim the key here so
+        // the key press above still clears the query instead of the shortcut firing.
+        if (keyEvent->key() == Qt::Key_Escape) {
+            event->accept();
+            return true;
+        }
+
         // TODO: Should be obtained from the ActionManager.
         static const QStringList focusShortcuts = {QStringLiteral("Ctrl+K"), QStringLiteral("Ctrl+L")};
-
-        auto *keyEvent = static_cast<QKeyEvent *>(event);
         if (focusShortcuts.contains(QKeySequence(keyEvent->keyCombination()).toString())) {
             selectQuery();
             event->accept();
