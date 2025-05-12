@@ -57,6 +57,9 @@ MainWindow::MainWindow(Core::Application *app, QWidget *parent)
     shortcut = new QShortcut(QStringLiteral("Ctrl+L"), this);
     connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->searchSidebar()->focusSearchEdit(); });
 
+    shortcut = new QShortcut(QStringLiteral("Esc"), this);
+    connect(shortcut, &QShortcut::activated, this, [this]() { currentTab()->searchSidebar()->focusSearchEdit(); });
+
     // Duplicate current tab.
     shortcut = new QShortcut(QStringLiteral("Ctrl+Alt+T"), this);
     connect(shortcut, &QShortcut::activated, this, [this]() { duplicateTab(m_tabBar->currentIndex()); });
